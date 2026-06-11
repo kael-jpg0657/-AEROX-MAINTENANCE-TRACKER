@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Aerox V2</title>
+<meta name="description" content="Yamaha Aerox V2 Maintenance Tracker - Track your bike maintenance offline">
+<meta name="theme-color" content="#0A84FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Aerox V2">
+<meta name="apple-touch-startup-image" content="">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --blue:#0A84FF; --green:#30D158; --yellow:#FFD60A; --red:#FF453A;
+  --orange:#FF9F0A; --purple:#BF5AF2; --teal:#5AC8FA; --cyan:#00C8FF;
+  --bg:#F2F2F7; --bg2:#FFFFFF; --bg3:#F2F2F7;
+  --label:#000; --label2:#3C3C43; --label3:rgba(60,60,67,0.6); --label4:rgba(60,60,67,0.3);
+  --separator:rgba(60,60,67,0.12); --fill:rgba(120,120,128,0.12); --fill2:rgba(120,120,128,0.16);
+  --glass:rgba(255,255,255,0.72); --glass-b:rgba(255,255,255,0.18);
+  --shadow:rgba(0,0,0,0.08); --shadow-md:rgba(0,0,0,0.14);
+  --r-sm:10px; --r-md:16px; --r-lg:22px; --r-xl:30px;
+  --font:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
+  --mono:'SF Mono','Fira Code',monospace;
+  --tab-h:83px; --safe-b:env(safe-area-inset-bottom,0px);
+}
+[data-theme="dark"] {
+  --bg:#000; --bg2:#1C1C1E; --bg3:#2C2C2E;
+  --label:#FFF; --label2:#EBEBF5; --label3:rgba(235,235,245,0.6); --label4:rgba(235,235,245,0.18);
+  --separator:rgba(84,84,88,0.6); --fill:rgba(118,118,128,0.24); --fill2:rgba(118,118,128,0.32);
+  --glass:rgba(28,28,30,0.82); --glass-b:rgba(255,255,255,0.08);
+  --shadow:rgba(0,0,0,0.4); --shadow-md:rgba(0,0,0,0.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;overscroll-behavior:none}
+body{font-family:var(--font);background:var(--bg);color:var(--label);min-height:100%;overscroll-behavior:none;-webkit-font-smoothing:antialiased;transition:background 0.3s,color 0.3s;overflow-x:hidden}
+button{font-family:var(--font);cursor:pointer;border:none;outline:none;background:none}
+input,textarea,select{font-family:var(--font)}
+#app{max-width:430px;margin:0 auto;position:relative;min-height:100vh}
+
+/* NAV HEADER */
+.nav-header{position:sticky;top:0;z-index:80;padding:0 20px;padding-top:env(safe-area-inset-top,0px);background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid var(--separator)}
+.nav-header-inner{display:flex;align-items:center;justify-content:space-between;height:52px}
+.nav-title{font-size:17px;font-weight:600;letter-spacing:-0.3px}
+.nav-actions{display:flex;gap:8px}
+.nav-btn{width:32px;height:32px;border-radius:50%;background:var(--fill);display:flex;align-items:center;justify-content:center;font-size:15px;transition:transform 0.15s,background 0.15s}
+.nav-btn:active{transform:scale(0.88);background:var(--fill2)}
+
+/* PAGES */
+.page{display:none;padding:16px 16px calc(var(--tab-h) + 12px);min-height:calc(100vh - 52px)}
+.page.active{display:block;animation:pageIn 0.28s cubic-bezier(0.32,0,0.67,0) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* TAB BAR */
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:90;background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:0.5px solid var(--separator);display:flex;padding-bottom:var(--safe-b)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 4px 8px;font-size:10px;font-weight:500;color:var(--label3);letter-spacing:0.2px;transition:color 0.2s}
+.tab-icon{font-size:22px;line-height:1;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.tab-item.active{color:var(--blue)}
+.tab-item.active .tab-icon{transform:scale(1.12)}
+
+/* CARDS */
+.card{background:var(--bg2);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 2px 12px var(--shadow),0 0.5px 0 var(--glass-b) inset;margin-bottom:14px;transition:transform 0.15s,box-shadow 0.15s}
+
+/* SECTION HEADERS */
+.section-header{font-size:13px;font-weight:600;color:var(--label3);text-transform:uppercase;letter-spacing:0.6px;padding:0 4px;margin:20px 0 8px}
+.section-header:first-child{margin-top:4px}
+
+/* ODO CARD */
+.odo-card{background:linear-gradient(145deg,#0A84FF 0%,#0060D6 100%);border-radius:var(--r-xl);padding:24px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(10,132,255,0.4)}
+.odo-card::before{content:'';position:absolute;top:-40%;right:-20%;width:240px;height:240px;background:radial-gradient(circle,rgba(255,255,255,0.18),transparent 70%);pointer-events:none}
+.odo-eyebrow{font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px}
+.odo-value-row{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.odo-input{font-size:52px;font-weight:800;color:#fff;background:none;border:none;outline:none;width:220px;letter-spacing:-2px;caret-color:rgba(255,255,255,0.8)}
+.odo-input::placeholder{color:rgba(255,255,255,0.4)}
+.odo-unit{font-size:18px;font-weight:600;color:rgba(255,255,255,0.7)}
+.odo-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:14px}
+.odo-save-btn{background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:9px 22px;font-size:14px;font-weight:600;color:#fff;backdrop-filter:blur(8px);transition:background 0.18s,transform 0.15s;display:inline-block}
+.odo-save-btn:active{background:rgba(255,255,255,0.32);transform:scale(0.96)}
+
+/* ── WARM-UP TIMER ──────────────────────────── */
+.warmup-card{
+  background:var(--bg2);border-radius:var(--r-lg);
+  padding:20px;margin-bottom:14px;
+  box-shadow:0 2px 12px var(--shadow);
+  text-align:center;
+}
+.warmup-label{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--label3);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px}
+.warmup-ring-wrap{position:relative;width:150px;height:150px;margin:0 auto 16px}
+.warmup-svg{width:150px;height:150px;transform:rotate(-90deg)}
+.wu-track{fill:none;stroke:var(--fill2);stroke-width:9}
+.wu-arc{fill:none;stroke:var(--cyan);stroke-width:9;stroke-linecap:round;stroke-dasharray:408;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke 0.4s}
+.warmup-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.warmup-time{font-size:38px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1}
+.warmup-sublabel{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--label3);margin-top:3px}
+.warmup-motivate{font-size:13px;color:var(--label3);margin-bottom:14px;min-height:20px;font-weight:500}
+.warmup-presets{display:flex;justify-content:center;gap:8px;margin-bottom:12px}
+.wu-preset{
+  padding:8px 18px;border-radius:22px;font-size:14px;font-weight:700;
+  background:var(--fill);color:var(--label2);
+  border:1.5px solid transparent;
+  transition:background 0.18s,border-color 0.18s,transform 0.15s;
+}
+.wu-preset.selected{background:var(--fill2);border-color:var(--cyan);color:var(--cyan)}
+.wu-preset:active{transform:scale(0.93)}
+.warmup-btns{display:flex;gap:10px;justify-content:center}
+.wu-add15{
+  background:var(--fill);color:var(--label2);
+  border-radius:22px;padding:10px 18px;font-size:14px;font-weight:700;
+  transition:background 0.15s,transform 0.15s;
+}
+.wu-add15:active{background:var(--fill2);transform:scale(0.95)}
+.wu-skip{
+  background:var(--yellow);color:#000;
+  border-radius:22px;padding:10px 28px;font-size:14px;font-weight:800;
+  box-shadow:0 4px 14px rgba(255,214,10,0.4);
+  transition:opacity 0.15s,transform 0.15s;
+}
+.wu-skip:active{opacity:0.82;transform:scale(0.95)}
+.wu-start{
+  background:var(--cyan);color:#000;
+  border-radius:22px;padding:10px 28px;font-size:14px;font-weight:800;
+  box-shadow:0 4px 14px rgba(0,200,255,0.35);
+  transition:opacity 0.15s,transform 0.15s;
+}
+.wu-start:active{opacity:0.82;transform:scale(0.95)}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-pill{background:var(--bg2);border-radius:var(--r-md);padding:14px 10px;text-align:center;box-shadow:0 2px 10px var(--shadow)}
+.stat-num{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.stat-lbl{font-size:11px;font-weight:500;color:var(--label3);margin-top:4px}
+
+/* ALERT ROWS */
+.alert-list{padding:4px 0}
+.alert-row{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative}
+.alert-row+.alert-row::before{content:'';position:absolute;top:0;left:56px;right:0;height:0.5px;background:var(--separator)}
+.alert-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.alert-body{flex:1;min-width:0}
+.alert-name{font-size:15px;font-weight:600;margin-bottom:1px}
+.alert-sub{font-size:12px;color:var(--label3)}
+.alert-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;font-family:var(--mono);flex-shrink:0}
+.dot-red{background:rgba(255,69,58,0.15)}.dot-yellow{background:rgba(255,214,10,0.15)}.dot-green{background:rgba(48,209,88,0.15)}
+.c-red{color:var(--red)}.c-yellow{color:#B8840A}.c-green{color:var(--green)}.c-blue{color:var(--blue)}
+[data-theme="dark"] .c-yellow{color:var(--yellow)}
+.badge-red{background:rgba(255,69,58,0.12);color:var(--red)}
+.badge-yellow{background:rgba(255,214,10,0.16);color:#8A6200}
+[data-theme="dark"] .badge-yellow{color:var(--yellow)}
+.badge-green{background:rgba(48,209,88,0.12);color:var(--green)}
+.prog-track{height:4px;background:var(--fill);border-radius:2px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:2px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
+
+/* PART LIST (tracker) */
+.part-section-label{font-size:12px;font-weight:700;color:var(--label3);text-transform:uppercase;letter-spacing:0.8px;padding:14px 16px 6px;background:var(--bg2)}
+.part-list{display:flex;flex-direction:column;gap:0}
+.part-group{background:var(--bg2);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 2px 12px var(--shadow),0 0.5px 0 var(--glass-b) inset;margin-bottom:14px}
+.part-group-label{font-size:11px;font-weight:700;color:var(--label3);text-transform:uppercase;letter-spacing:0.9px;padding:12px 16px 6px;border-bottom:0.5px solid var(--separator)}
+.part-item{background:var(--bg2);padding:14px 16px;display:flex;align-items:center;gap:14px;position:relative;cursor:pointer;transition:background 0.15s}
+.part-item+.part-item::before{content:'';position:absolute;top:0;left:62px;right:0;height:0.5px;background:var(--separator)}
+.part-item:active{background:var(--fill)}
+.part-icon-bg{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.part-info{flex:1;min-width:0}
+.part-name{font-size:15px;font-weight:600;margin-bottom:2px}
+.part-detail{font-size:12px;color:var(--label3)}
+.part-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.part-status-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:16px;font-family:var(--mono);white-space:nowrap}
+.part-chevron{color:var(--label4);font-size:13px}
+.add-part-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background 0.15s;border-top:0.5px solid var(--separator)}
+.add-part-btn:active{background:var(--fill)}
+.add-part-icon{width:40px;height:40px;border-radius:12px;background:rgba(10,132,255,0.12);display:flex;align-items:center;justify-content:center;font-size:22px}
+.add-part-label{font-size:15px;font-weight:600;color:var(--blue)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{width:100%;max-width:430px;background:var(--bg2);border-radius:20px 20px 0 0;padding:0 0 calc(var(--safe-b) + 16px);transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.32,0,0.67,0);max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--label4);border-radius:2px;margin:10px auto 0}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:0.5px solid var(--separator)}
+.modal-title{font-size:17px;font-weight:700}
+.modal-close,.modal-save{font-size:15px;font-weight:600;color:var(--blue);padding:4px 0;background:none;border:none;transition:opacity 0.15s}
+.modal-close{color:var(--label3)}
+.modal-close:active,.modal-save:active{opacity:0.5}
+.modal-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.field-group{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:12px;font-weight:600;color:var(--label3);letter-spacing:0.4px;text-transform:uppercase}
+.field-input{background:var(--fill);border:none;border-radius:var(--r-sm);padding:11px 14px;font-size:15px;color:var(--label);outline:none;width:100%;transition:box-shadow 0.18s,background 0.18s}
+.field-input:focus{background:var(--fill2);box-shadow:0 0 0 3px rgba(10,132,255,0.22)}
+.field-textarea{resize:none;height:72px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-delete-btn{margin:0 20px;padding:14px;background:rgba(255,69,58,0.1);border-radius:var(--r-md);font-size:15px;font-weight:600;color:var(--red);transition:background 0.15s,transform 0.15s;width:calc(100% - 40px)}
+.modal-delete-btn:active{background:rgba(255,69,58,0.2);transform:scale(0.97)}
+
+/* ── ENGINE OIL TRACKER ─────────────────────── */
+.oil-card{background:var(--bg2);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 2px 12px var(--shadow);margin-bottom:14px}
+.oil-hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:20px;position:relative;overflow:hidden}
+.oil-hero::before{content:'🛢️';position:absolute;right:-10px;bottom:-10px;font-size:80px;opacity:0.1;pointer-events:none}
+.oil-hero-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px}
+.oil-hero-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px}
+.oil-hero-brand{font-size:13px;color:rgba(255,255,255,0.6)}
+.oil-body{padding:16px}
+.oil-brand-select{width:100%;background:var(--fill);border:none;border-radius:var(--r-sm);padding:11px 14px;font-size:15px;color:var(--label);outline:none;margin-bottom:14px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.oil-entry-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.oil-field-label{font-size:10px;font-weight:700;color:var(--label3);letter-spacing:0.6px;text-transform:uppercase;margin-bottom:4px}
+.oil-rating-row{margin-bottom:14px}
+.oil-rating-label{font-size:12px;font-weight:600;color:var(--label3);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:10px}
+.oil-rating-group{display:flex;flex-direction:column;gap:10px}
+.oil-rating-item{display:flex;align-items:center;gap:10px}
+.oil-rating-name{font-size:13px;font-weight:500;color:var(--label2);width:100px;flex-shrink:0}
+.oil-stars{display:flex;gap:4px}
+.oil-star{font-size:22px;cursor:pointer;transition:transform 0.15s;line-height:1;filter:grayscale(1);opacity:0.35}
+.oil-star.active{filter:none;opacity:1}
+.oil-star:active{transform:scale(1.3)}
+.oil-notes-input{width:100%;background:var(--fill);border:none;border-radius:var(--r-sm);padding:10px 12px;font-size:13px;color:var(--label);outline:none;resize:none;height:56px;transition:box-shadow 0.18s}
+.oil-notes-input:focus{box-shadow:0 0 0 3px rgba(10,132,255,0.22)}
+.oil-save-btn{width:100%;padding:13px;border-radius:var(--r-md);background:var(--orange);color:#fff;font-size:15px;font-weight:800;box-shadow:0 4px 14px rgba(255,159,10,0.35);transition:opacity 0.15s,transform 0.15s;margin-top:4px}
+.oil-save-btn:active{opacity:0.82;transform:scale(0.98)}
+.oil-history-item{padding:12px 16px;border-top:0.5px solid var(--separator);display:flex;align-items:center;gap:12px}
+.oil-brand-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(255,159,10,0.12);color:var(--orange);white-space:nowrap;font-family:var(--mono)}
+.oil-perf-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.oil-perf-chip{font-size:11px;color:var(--label3);font-weight:500}
+.oil-perf-stars{font-size:12px;margin-left:2px}
+
+/* HISTORY */
+.hist-filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;margin-bottom:14px}
+.hist-filter-row::-webkit-scrollbar{display:none}
+.filter-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;background:var(--fill);color:var(--label2);transition:background 0.18s,color 0.18s,transform 0.15s}
+.filter-chip.active{background:var(--blue);color:#fff}
+.filter-chip:active{transform:scale(0.94)}
+.hist-empty{text-align:center;padding:48px 20px;color:var(--label3)}
+.hist-empty-icon{font-size:48px;margin-bottom:12px}
+.hist-empty-text{font-size:15px;font-weight:500}
+.hist-timeline{position:relative;padding-left:28px}
+.hist-timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:1.5px;background:var(--separator)}
+.hist-entry{position:relative;margin-bottom:14px}
+.hist-dot{position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--blue);border:2.5px solid var(--bg2);box-shadow:0 0 0 2px var(--blue)}
+.hist-card{background:var(--bg2);border-radius:var(--r-md);padding:14px 16px;box-shadow:0 2px 10px var(--shadow)}
+.hist-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.hist-part-name{font-size:15px;font-weight:700}
+.hist-date{font-size:12px;color:var(--label3);font-weight:500}
+.hist-km{font-size:13px;font-weight:700;color:var(--blue);font-family:var(--mono)}
+.hist-notes{font-size:12px;color:var(--label3);margin-top:4px;font-style:italic}
+.hist-del{padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--red);background:rgba(255,69,58,0.1);flex-shrink:0;align-self:flex-start;transition:background 0.15s}
+.hist-del:active{background:rgba(255,69,58,0.2)}
+
+/* CHARTS */
+.chart-card{background:var(--bg2);border-radius:var(--r-lg);padding:18px 16px 16px;box-shadow:0 2px 16px var(--shadow);margin-bottom:14px}
+.chart-title{font-size:17px;font-weight:700;margin-bottom:2px}
+.chart-sub{font-size:13px;color:var(--label3);margin-bottom:16px}
+.chart-wrap{position:relative;width:100%}
+canvas{display:block!important;width:100%!important}
+.chart-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--label2);font-weight:500}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.charts-empty{text-align:center;padding:48px 20px;color:var(--label3)}
+
+/* SETTINGS */
+.settings-group{background:var(--bg2);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 2px 10px var(--shadow);margin-bottom:14px}
+.settings-row{display:flex;align-items:center;gap:12px;padding:13px 16px;position:relative;cursor:pointer}
+.settings-row+.settings-row::before{content:'';position:absolute;top:0;left:56px;right:0;height:0.5px;background:var(--separator)}
+.settings-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.settings-label{flex:1;font-size:15px;font-weight:500}
+.settings-value{font-size:14px;color:var(--label3)}
+.ios-toggle{width:51px;height:31px;border-radius:16px;background:var(--fill2);position:relative;cursor:pointer;transition:background 0.25s;flex-shrink:0}
+.ios-toggle.on{background:var(--green)}
+.ios-toggle::after{content:'';position:absolute;width:27px;height:27px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 2px 6px rgba(0,0,0,0.22)}
+.ios-toggle.on::after{transform:translateX(20px)}
+.guide-item{display:flex;align-items:center;gap:10px;padding:10px 16px;position:relative}
+.guide-item+.guide-item::before{content:'';position:absolute;top:0;left:48px;right:0;height:0.5px;background:var(--separator)}
+.guide-emoji{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+.guide-name{flex:1;font-size:14px;font-weight:500}
+.guide-val{font-size:13px;color:var(--blue);font-weight:600;font-family:var(--mono)}
+
+/* UTILS */
+.danger-btn{width:100%;padding:14px;background:rgba(255,69,58,0.1);border-radius:var(--r-md);font-size:16px;font-weight:600;color:var(--red);transition:background 0.18s,transform 0.15s}
+.danger-btn:active{background:rgba(255,69,58,0.2);transform:scale(0.98)}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--tab-h) + 16px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,32,0.92);color:#fff;padding:11px 22px;border-radius:30px;font-size:14px;font-weight:600;opacity:0;transition:opacity 0.3s,transform 0.3s;z-index:300;pointer-events:none;white-space:nowrap;backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- NAV -->
+<div class="nav-header">
+  <div class="nav-header-inner">
+    <div class="nav-title" id="pageTitle">Dashboard</div>
+    <div class="nav-actions">
+      <button class="nav-btn" id="themeBtn">🌙</button>
+      <button class="nav-btn" onclick="document.getElementById('importFile').click()">📥</button>
+      <button class="nav-btn" id="exportBtnTop">📤</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dash">
+  <!-- Odometer -->
+  <div class="odo-card">
+    <div class="odo-eyebrow">Current Odometer</div>
+    <div class="odo-value-row">
+      <input class="odo-input" id="odoInput" type="number" min="0" placeholder="0" inputmode="numeric">
+      <span class="odo-unit">km</span>
+    </div>
+    <div class="odo-sub" id="odoSub">Tap the number to edit</div>
+    <button class="odo-save-btn" onclick="saveOdo()">Update</button>
+  </div>
+
+  <!-- Warm-up Timer -->
+  <div class="warmup-card">
+    <div class="warmup-label">⏱️ Warm-Up Timer</div>
+    <div class="warmup-ring-wrap">
+      <svg class="warmup-svg" viewBox="0 0 150 150">
+        <circle class="wu-track" cx="75" cy="75" r="65"/>
+        <circle class="wu-arc" id="wuArc" cx="75" cy="75" r="65"/>
+      </svg>
+      <div class="warmup-inner">
+        <div class="warmup-time" id="wuTime">2:00</div>
+        <div class="warmup-sublabel" id="wuLabel">MAG-INIT</div>
+      </div>
+    </div>
+    <div class="warmup-motivate" id="wuMotivate">I-warm up muna bago umalis!</div>
+    <div class="warmup-presets">
+      <button class="wu-preset" data-sec="60" onclick="wuSetPreset(60,this)">1 min</button>
+      <button class="wu-preset selected" data-sec="120" onclick="wuSetPreset(120,this)">2 min</button>
+      <button class="wu-preset" data-sec="180" onclick="wuSetPreset(180,this)">3 min</button>
+    </div>
+    <div class="warmup-btns">
+      <button class="wu-add15" onclick="wuAdd15()">+15s</button>
+      <button class="wu-skip" id="wuSkipBtn" onclick="wuSkip()" style="display:none">SKIP ▶</button>
+      <button class="wu-start" id="wuStartBtn" onclick="wuToggle()">START ▶</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-pill"><div class="stat-num c-red" id="sUrg">0</div><div class="stat-lbl">Overdue</div></div>
+    <div class="stat-pill"><div class="stat-num c-yellow" id="sSoon">0</div><div class="stat-lbl">Due Soon</div></div>
+    <div class="stat-pill"><div class="stat-num c-green" id="sGood">0</div><div class="stat-lbl">Good</div></div>
+  </div>
+
+  <div class="section-header">Priority Alerts</div>
+  <div class="card">
+    <div class="alert-list" id="alertList"><div style="padding:20px;text-align:center;color:var(--label3);font-size:14px">✅ All parts are good!</div></div>
+  </div>
+
+  <div class="section-header">Parts Overview</div>
+  <div class="card"><div id="dashPartsList"></div></div>
+</div>
+
+<!-- TRACKER -->
+<div class="page" id="page-track">
+  <div id="trackerGroups"></div>
+</div>
+
+<!-- CHARTS -->
+<div class="page" id="page-charts">
+  <div id="chartsContent">
+    <div class="chart-card">
+      <div class="chart-title">Maintenance Frequency</div>
+      <div class="chart-sub">Times each part has been serviced</div>
+      <div class="chart-wrap"><canvas id="chartFreq" height="220"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Maintenance Distribution</div>
+      <div class="chart-sub">Service share per part</div>
+      <div class="chart-wrap" style="max-width:280px;margin:0 auto"><canvas id="chartPie" height="280"></canvas></div>
+      <div class="chart-legend" id="pieLegend"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Monthly Activity</div>
+      <div class="chart-sub">Services logged over time</div>
+      <div class="chart-wrap"><canvas id="chartLine" height="200"></canvas></div>
+    </div>
+  </div>
+  <div class="charts-empty" id="chartsEmpty" style="display:none">
+    <div style="font-size:52px;margin-bottom:12px">📊</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">No data yet</div>
+    <div style="font-size:14px;color:var(--label3)">Log your first maintenance in the Tracker tab.</div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-hist">
+  <div class="hist-filter-row" id="filterRow"></div>
+  <div class="hist-timeline" id="histTimeline">
+    <div class="hist-empty"><div class="hist-empty-icon">📋</div><div class="hist-empty-text">No records yet</div></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-set">
+  <div class="section-header">Preferences</div>
+  <div class="settings-group">
+    <div class="settings-row">
+      <div class="settings-icon" style="background:rgba(10,132,255,0.12)">🌙</div>
+      <div class="settings-label">Dark Mode</div>
+      <div class="ios-toggle on" id="darkToggle" onclick="toggleTheme()"></div>
+    </div>
+  </div>
+  <div class="section-header">Data</div>
+  <div class="settings-group">
+    <div class="settings-row" onclick="exportData()">
+      <div class="settings-icon" style="background:rgba(48,209,88,0.12)">📤</div>
+      <div class="settings-label">Export Backup</div>
+      <div class="settings-value">JSON ›</div>
+    </div>
+    <div class="settings-row" onclick="document.getElementById('importFile').click()">
+      <div class="settings-icon" style="background:rgba(10,132,255,0.12)">📥</div>
+      <div class="settings-label">Import Backup</div>
+      <div class="settings-value">JSON ›</div>
+    </div>
+  </div>
+  <div class="section-header">Vehicle</div>
+  <div class="settings-group">
+    <div class="settings-row">
+      <div class="settings-icon" style="background:rgba(255,159,10,0.12)">🏍️</div>
+      <div class="settings-label">Model</div>
+      <div class="settings-value">Yamaha Aerox V2</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-icon" style="background:rgba(191,90,242,0.12)">📊</div>
+      <div class="settings-label">Total Records</div>
+      <div class="settings-value" id="totalRec">0</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-icon" style="background:rgba(90,200,250,0.12)">ℹ️</div>
+      <div class="settings-label">App Version</div>
+      <div class="settings-value">3.1</div>
+    </div>
+  </div>
+  <div class="section-header">Interval Reference</div>
+  <div class="settings-group" id="guideList"></div>
+  <div style="margin-top:16px">
+    <button class="danger-btn" onclick="resetData()">⚠️ Reset All Data</button>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ENGINE OIL PERFORMANCE PAGE -->
+<div class="page" id="page-oil">
+  <!-- Oil Hero -->
+  <div class="oil-card">
+    <div class="oil-hero">
+      <div class="oil-hero-label">Engine Oil Tracker</div>
+      <div class="oil-hero-title" id="oilHeroTitle">No oil logged</div>
+      <div class="oil-hero-brand" id="oilHeroBrand">Add your current oil below</div>
+    </div>
+    <div class="oil-body">
+      <div class="field-group" style="margin-bottom:12px">
+        <div class="oil-field-label">Oil Brand</div>
+        <select class="field-input oil-brand-select" id="oilBrandSel">
+          <option value="">-- Select Brand --</option>
+          <optgroup label="Yamalube">
+            <option>Yamalube 4 10W-40</option>
+            <option>Yamalube 4SS 10W-30</option>
+            <option>Yamalube S 10W-40</option>
+          </optgroup>
+          <optgroup label="Shell">
+            <option>Shell Advance AX7 10W-40</option>
+            <option>Shell Advance Ultra 10W-40</option>
+            <option>Shell Advance 4T 20W-40</option>
+          </optgroup>
+          <optgroup label="Motul">
+            <option>Motul 3000 4T 10W-40</option>
+            <option>Motul 5100 10W-40</option>
+            <option>Motul 7100 10W-40</option>
+            <option>Motul 300V 10W-40</option>
+          </optgroup>
+          <optgroup label="Castrol">
+            <option>Castrol Power1 10W-40</option>
+            <option>Castrol Go 4T 20W-40</option>
+            <option>Castrol GTX 20W-50</option>
+          </optgroup>
+          <optgroup label="Liqui Moly">
+            <option>Liqui Moly MoS2 10W-40</option>
+            <option>Liqui Moly Street 4T 10W-40</option>
+          </optgroup>
+          <optgroup label="Repsol">
+            <option>Repsol Moto 4T Sport 10W-40</option>
+            <option>Repsol Moto Racing 4T 10W-50</option>
+          </optgroup>
+          <optgroup label="Petron">
+            <option>Petron Rev X 10W-40</option>
+            <option>Petron Blaze Racing 10W-40</option>
+          </optgroup>
+          <optgroup label="Nanomoly">
+            <option>Nanomoly Competition 10W-40</option>
+            <option>Nanomoly Competition 10W-50</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option value="custom">Custom / Other brand</option>
+          </optgroup>
+        </select>
+        <input class="field-input" id="oilBrandCustom" placeholder="Type brand name..." style="display:none;margin-top:8px">
+      </div>
+
+      <div class="field-grid" style="margin-bottom:14px">
+        <div class="field-group">
+          <div class="oil-field-label">Date Changed</div>
+          <input class="field-input" type="date" id="oilDate">
+        </div>
+        <div class="field-group">
+          <div class="oil-field-label">Odometer (km)</div>
+          <input class="field-input" type="number" id="oilKm" placeholder="km" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="oil-rating-label">Performance Rating</div>
+      <div class="oil-rating-group" id="oilRatingGroup">
+        <div class="oil-rating-item">
+          <div class="oil-rating-name">High Speed</div>
+          <div class="oil-stars" data-cat="high">
+            <span class="oil-star" data-v="1">⭐</span><span class="oil-star" data-v="2">⭐</span><span class="oil-star" data-v="3">⭐</span><span class="oil-star" data-v="4">⭐</span><span class="oil-star" data-v="5">⭐</span>
+          </div>
+        </div>
+        <div class="oil-rating-item">
+          <div class="oil-rating-name">Low Speed</div>
+          <div class="oil-stars" data-cat="low">
+            <span class="oil-star" data-v="1">⭐</span><span class="oil-star" data-v="2">⭐</span><span class="oil-star" data-v="3">⭐</span><span class="oil-star" data-v="4">⭐</span><span class="oil-star" data-v="5">⭐</span>
+          </div>
+        </div>
+        <div class="oil-rating-item">
+          <div class="oil-rating-name">Smoothness</div>
+          <div class="oil-stars" data-cat="smooth">
+            <span class="oil-star" data-v="1">⭐</span><span class="oil-star" data-v="2">⭐</span><span class="oil-star" data-v="3">⭐</span><span class="oil-star" data-v="4">⭐</span><span class="oil-star" data-v="5">⭐</span>
+          </div>
+        </div>
+        <div class="oil-rating-item">
+          <div class="oil-rating-name">Overall</div>
+          <div class="oil-stars" data-cat="overall">
+            <span class="oil-star" data-v="1">⭐</span><span class="oil-star" data-v="2">⭐</span><span class="oil-star" data-v="3">⭐</span><span class="oil-star" data-v="4">⭐</span><span class="oil-star" data-v="5">⭐</span>
+          </div>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="field-group" style="margin-bottom:12px">
+        <div class="oil-field-label">Oil Additive</div>
+        <select class="field-input oil-brand-select" id="oilAdditive">
+          <option value="">None / Walang additive</option>
+          <optgroup label="Nanomoly">
+            <option>Nanomoly Oil Maximizer</option>
+          </optgroup>
+          <optgroup label="Other Additives">
+            <option>Liqui Moly Engine Flush</option>
+            <option>Liqui Moly Oil Additive</option>
+            <option>Motul Engine Clean</option>
+            <option>STP Oil Treatment</option>
+            <option>Bardahl Engine Treatment</option>
+          </optgroup>
+          <option value="custom-additive">Custom / Other additive</option>
+        </select>
+        <input class="field-input" id="oilAdditiveCustom" placeholder="Type additive name..." style="display:none;margin-top:8px">
+      </div>
+      <div class="field-group" style="margin-bottom:12px">
+        <div class="oil-field-label">Fuel Additive</div>
+        <select class="field-input oil-brand-select" id="fuelAdditive">
+          <option value="">None / Walang additive</option>
+          <optgroup label="Nanomoly">
+            <option>Nanomoly Fuel Maximizer</option>
+          </optgroup>
+          <optgroup label="Marsh">
+            <option>Marsh Gas Treatment Carbon Cleaner</option>
+          </optgroup>
+          <optgroup label="Other Fuel Additives">
+            <option>Liqui Moly Injection Cleaner</option>
+            <option>Liqui Moly Valve Clean</option>
+            <option>STP Fuel Injector Cleaner</option>
+            <option>Bardahl Fuel Treatment</option>
+            <option>Motul Fuel System Clean</option>
+            <option>RC-900 Fuel Treatment</option>
+          </optgroup>
+          <option value="custom-fuel">Custom / Other fuel additive</option>
+        </select>
+        <input class="field-input" id="fuelAdditiveCustom" placeholder="Type fuel additive name..." style="display:none;margin-top:8px">
+      </div>
+      <div class="field-group" style="margin-bottom:14px">
+        <div class="oil-field-label">Notes</div>
+        <textarea class="oil-notes-input" id="oilNotes" placeholder="Observations, feel, etc..."></textarea>
+      </div>
+      <button class="oil-save-btn" onclick="saveOilEntry()">🛢️ Save Oil Record</button>
+    </div>
+  </div>
+
+  <div class="section-header">Oil History</div>
+  <div class="card" id="oilHistList">
+    <div style="padding:24px;text-align:center;color:var(--label3);font-size:14px">No oil records yet</div>
+  </div>
+  <div style="height:12px"></div>
+</div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-item active" onclick="goPage('dash',this)"><span class="tab-icon">⊙</span><span>Home</span></button>
+  <button class="tab-item" onclick="goPage('track',this)"><span class="tab-icon">🔧</span><span>Tracker</span></button>
+  <button class="tab-item" onclick="goPage('charts',this)"><span class="tab-icon">📈</span><span>Charts</span></button>
+  <button class="tab-item" onclick="goPage('hist',this)"><span class="tab-icon">📋</span><span>History</span></button>
+  <button class="tab-item" onclick="goPage('oil',this)"><span class="tab-icon">🛢️</span><span>Oil</span></button>
+  <button class="tab-item" onclick="goPage('set',this)"><span class="tab-icon">⚙️</span><span>Settings</span></button>
+</nav>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeModalOutside(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal()">Cancel</button>
+      <div class="modal-title" id="modalTitle">Edit Part</div>
+      <button class="modal-save" onclick="saveModalPart()">Save</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field-label">Last Service Date</div>
+        <input class="field-input" type="date" id="mDate">
+      </div>
+      <div class="field-grid">
+        <div class="field-group">
+          <div class="field-label">Odometer (km)</div>
+          <input class="field-input" type="number" id="mKm" placeholder="0" inputmode="numeric">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Interval (km)</div>
+          <input class="field-input" type="number" id="mIKm" placeholder="km" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Interval (days)</div>
+        <input class="field-input" type="number" id="mIDay" placeholder="days" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Notes</div>
+        <textarea class="field-input field-textarea" id="mNotes" placeholder="Optional notes..."></textarea>
+      </div>
+    </div>
+    <button class="modal-delete-btn" id="modalDeleteBtn" onclick="deleteCurrentEntry()">Delete Last Record</button>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- ADD CUSTOM PART MODAL -->
+<div class="modal-overlay" id="addPartModal" onclick="closeAddModalOutside(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeAddModal()">Cancel</button>
+      <div class="modal-title">Add Custom Part</div>
+      <button class="modal-save" onclick="saveCustomPart()">Add</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field-label">Part Name</div>
+        <input class="field-input" id="cpName" placeholder="e.g. Chain Lubricant">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Icon (emoji)</div>
+        <input class="field-input" id="cpIcon" placeholder="🔩" maxlength="4">
+      </div>
+      <div class="field-grid">
+        <div class="field-group">
+          <div class="field-label">Interval (km)</div>
+          <input class="field-input" type="number" id="cpIKm" placeholder="km" inputmode="numeric">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Interval (days)</div>
+          <input class="field-input" type="number" id="cpIDay" placeholder="days" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+
+<script>
+// ═══════════════════════════════════════════════
+// PART DEFINITIONS — Grouped
+// ═══════════════════════════════════════════════
+const GROUPS_DEF = [
+  {
+    id:'engine', label:'Engine', parts:[
+      {id:'engine-oil',  name:'Engine Oil',   icon:'🛢️', bg:'rgba(255,159,10,0.12)', iKm:1500, iDay:90},
+      {id:'gear-oil',    name:'Gear Oil',     icon:'⚙️', bg:'rgba(90,200,250,0.12)', iKm:3000, iDay:180},
+      {id:'coolant',     name:'Coolant',      icon:'💧', bg:'rgba(10,132,255,0.12)', iKm:24000,iDay:730},
+      {id:'spark-plug',  name:'Spark Plug',   icon:'⚡', bg:'rgba(255,159,10,0.12)', iKm:8000, iDay:365},
+      {id:'air-filter',  name:'Air Filter',   icon:'💨', bg:'rgba(90,200,250,0.12)', iKm:5000, iDay:365},
+      {id:'fuel-filter', name:'Fuel Filter',  icon:'⛽', bg:'rgba(255,214,10,0.12)', iKm:20000,iDay:365},
+      {id:'throttle-body',name:'Throttle Body Cleaning',icon:'🔄',bg:'rgba(191,90,242,0.12)',iKm:10000,iDay:365},
+      {id:'fi-cleaning', name:'F.I Cleaning', icon:'💉', bg:'rgba(90,200,250,0.12)', iKm:10000,iDay:365},
+      {id:'ckp',         name:'CKP Replacement',icon:'🔌',bg:'rgba(255,69,58,0.12)', iKm:30000,iDay:730},
+      {id:'magneto',     name:'Magneto Cleaning',icon:'🧲',bg:'rgba(48,209,88,0.12)', iKm:20000,iDay:730},
+    ]
+  },
+  {
+    id:'drivetrain', label:'Drivetrain', parts:[
+      {id:'drive-belt',  name:'Drive Belt',    icon:'🔁', bg:'rgba(191,90,242,0.12)',iKm:20000,iDay:730},
+      {id:'roller-wt',   name:'Roller Weights',icon:'⚖️', bg:'rgba(255,69,58,0.12)', iKm:8000, iDay:365},
+      {id:'clutch',      name:'Clutch Lining', icon:'🏎️', bg:'rgba(48,209,88,0.12)', iKm:12000,iDay:365},
+    ]
+  },
+  {
+    id:'suspension', label:'Suspension & Brakes', parts:[
+      {id:'brake-pads',  name:'Brake Pads',   icon:'🛑', bg:'rgba(255,69,58,0.12)',  iKm:10000,iDay:365},
+      {id:'front-susp',  name:'Repack Front Suspension',icon:'🔩',bg:'rgba(90,200,250,0.12)',iKm:20000,iDay:730},
+    ]
+  },
+  {
+    id:'tires', label:'Front Tire', parts:[
+      {id:'front-tire',  name:'Front Tire',   icon:'⭕', bg:'rgba(48,209,88,0.12)',  iKm:15000,iDay:730},
+      {id:'front-sealant',name:'Front Sealant',icon:'🧴',bg:'rgba(90,200,250,0.12)', iKm:10000,iDay:365},
+    ]
+  },
+  {
+    id:'reartires', label:'Rear Tire', parts:[
+      {id:'rear-tire',   name:'Rear Tire',    icon:'⭕', bg:'rgba(48,209,88,0.12)',  iKm:15000,iDay:730},
+      {id:'rear-sealant',name:'Rear Sealant', icon:'🧴', bg:'rgba(90,200,250,0.12)', iKm:10000,iDay:365},
+    ]
+  },
+  {
+    id:'electrical', label:'Electrical', parts:[
+      {id:'battery',     name:'Battery',      icon:'🔋', bg:'rgba(191,90,242,0.12)', iKm:20000,iDay:730},
+    ]
+  },
+  {
+    id:'custom', label:'Custom Parts', parts:[]
+  }
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let S = {odo:0, parts:[], history:[], oilHistory:[], dark:true};
+let activePartId = null;
+let histFilter = 'all';
+let chartFreqInst=null, chartPieInst=null, chartLineInst=null;
+let oilRatings = {high:0, low:0, smooth:0, overall:0};
+
+// WARM-UP TIMER STATE
+let wuTotal = 120;
+let wuRemaining = 120;
+let wuRunning = false;
+let wuTimer = null;
+const WU_MOTIV = [
+  'I-warm up muna bago umalis!',
+  'Hayaan mong mag-init ang engine mo...',
+  'Maganda para sa engine ang mag-warm up!',
+  'Last sets na lang. Huwag mong sayangin ang effort mo! 💪',
+  'Malapit na! Stay on!',
+  'Tapos na! Ride safely! 🏍️'
+];
+
+function wuSetPreset(sec, btn) {
+  if (wuRunning) return;
+  wuTotal = sec; wuRemaining = sec;
+  document.querySelectorAll('.wu-preset').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  wuUpdateDisplay();
+}
+function wuAdd15() {
+  wuRemaining = Math.min(wuRemaining+15, 600);
+  wuTotal = Math.max(wuTotal, wuRemaining);
+  wuUpdateDisplay();
+}
+function wuToggle() {
+  if (wuRunning) {
+    clearInterval(wuTimer); wuRunning = false;
+    document.getElementById('wuStartBtn').textContent = 'RESUME ▶';
+  } else {
+    if (wuRemaining <= 0) { wuRemaining = wuTotal; }
+    wuRunning = true;
+    document.getElementById('wuStartBtn').textContent = 'PAUSE ⏸';
+    document.getElementById('wuSkipBtn').style.display = 'block';
+    wuTimer = setInterval(wuTick, 1000);
+  }
+}
+function wuSkip() {
+  clearInterval(wuTimer); wuRunning = false; wuRemaining = 0;
+  wuUpdateDisplay();
+  document.getElementById('wuStartBtn').textContent = 'START ▶';
+  document.getElementById('wuSkipBtn').style.display = 'none';
+}
+function wuTick() {
+  wuRemaining--;
+  if (wuRemaining <= 0) {
+    wuRemaining = 0; clearInterval(wuTimer); wuRunning = false;
+    document.getElementById('wuStartBtn').textContent = 'START ▶';
+    document.getElementById('wuSkipBtn').style.display = 'none';
+    toast('Warm-up complete! Ride safely 🏍️');
+    if(navigator.vibrate) navigator.vibrate([200,100,200]);
+  }
+  wuUpdateDisplay();
+}
+function wuUpdateDisplay() {
+  const m = Math.floor(wuRemaining/60);
+  const s = wuRemaining % 60;
+  document.getElementById('wuTime').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  const pct = wuTotal > 0 ? wuRemaining/wuTotal : 1;
+  const circ = 408;
+  document.getElementById('wuArc').style.strokeDashoffset = circ*(1-pct);
+  const lbl = document.getElementById('wuLabel');
+  const mot = document.getElementById('wuMotivate');
+  if (wuRemaining <= 0) {
+    lbl.textContent = 'TAPOS NA!'; mot.textContent = WU_MOTIV[5];
+    document.getElementById('wuArc').style.stroke = 'var(--green)';
+  } else if (pct <= 0.25) {
+    lbl.textContent = 'MALAPIT NA!'; mot.textContent = WU_MOTIV[4];
+    document.getElementById('wuArc').style.stroke = 'var(--yellow)';
+  } else if (pct <= 0.5) {
+    lbl.textContent = 'MAG-PAHINGA'; mot.textContent = WU_MOTIV[3];
+    document.getElementById('wuArc').style.stroke = 'var(--cyan)';
+  } else {
+    lbl.textContent = 'MAG-INIT'; mot.textContent = WU_MOTIV[wuRunning?2:0];
+    document.getElementById('wuArc').style.stroke = 'var(--cyan)';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// LOAD / SAVE
+// ═══════════════════════════════════════════════
+function flatParts() {
+  return GROUPS_DEF.flatMap(g=>g.parts);
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem('aerox_v31');
+    if (raw) {
+      const sv = JSON.parse(raw);
+      S.odo = sv.odo||0;
+      S.history = sv.history||[];
+      S.oilHistory = sv.oilHistory||[];
+      S.dark = sv.dark!==undefined?sv.dark:true;
+      // Restore custom parts
+      if (sv.customParts) {
+        GROUPS_DEF.find(g=>g.id==='custom').parts = sv.customParts;
+      }
+      // Merge saved part data into defs
+      const allDefs = flatParts();
+      S.parts = allDefs.map(d=>{
+        const f=(sv.parts||[]).find(p=>p.id===d.id);
+        return f?{...d,...f}:{...d,lastKm:0,lastDate:'',notes:''};
+      });
+    } else {
+      S.parts = flatParts().map(d=>({...d,lastKm:0,lastDate:'',notes:''}));
+    }
+  } catch(e) {
+    S.parts = flatParts().map(d=>({...d,lastKm:0,lastDate:'',notes:''}));
+  }
+  applyTheme(false);
+}
+function persist() {
+  localStorage.setItem('aerox_v31', JSON.stringify({
+    ...S,
+    customParts: GROUPS_DEF.find(g=>g.id==='custom').parts
+  }));
+}
+
+// ═══════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════
+function calcStatus(p) {
+  if (!p.lastDate && !p.lastKm) return {urgency:0,label:'Not logged',cls:'yellow',pct:0};
+  let kmUrgency=0,dayUrgency=0,kmLabel='',dayLabel='',kmPct=0,dayPct=0;
+  if (p.iKm>0 && p.lastDate) {
+    const next=p.lastKm+p.iKm, diff=next-S.odo;
+    kmPct=Math.max(0,Math.min(100,(1-diff/p.iKm)*100));
+    if(diff<0){kmUrgency=3;kmLabel=`Overdue ${Math.abs(diff).toLocaleString()} km`;}
+    else if(diff<=p.iKm*0.15){kmUrgency=2;kmLabel=`Due in ${diff.toLocaleString()} km`;}
+    else{kmUrgency=1;kmLabel=`In ${diff.toLocaleString()} km`;}
+  }
+  if (p.iDay>0 && p.lastDate) {
+    const last=new Date(p.lastDate+'T00:00:00');
+    const nextD=new Date(last); nextD.setDate(nextD.getDate()+p.iDay);
+    const dd=Math.ceil((nextD-new Date())/86400000);
+    dayPct=Math.max(0,Math.min(100,(1-dd/p.iDay)*100));
+    if(dd<0){dayUrgency=3;dayLabel=`Overdue ${Math.abs(dd)} days`;}
+    else if(dd<=30){dayUrgency=2;dayLabel=`Due in ${dd} days`;}
+    else{dayUrgency=1;dayLabel=`In ${dd} days`;}
+  }
+  let urgency,label,pct;
+  if(kmUrgency>=dayUrgency){urgency=kmUrgency;label=kmLabel||dayLabel;pct=kmPct;}
+  else{urgency=dayUrgency;label=dayLabel;pct=dayPct;}
+  if(!label)label='Not logged';
+  const cls=urgency===3?'red':urgency===2?'yellow':urgency===1?'green':'yellow';
+  return{urgency,label,cls,pct};
+}
+
+// ═══════════════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════════════
+function renderAll(){renderDash();renderTracker();renderHistory();}
+
+function renderDash() {
+  document.getElementById('odoInput').value = S.odo||'';
+  const sts = S.parts.map(p=>({...calcStatus(p),part:p}));
+  const urg=sts.filter(s=>s.urgency===3).length;
+  const soon=sts.filter(s=>s.urgency===2).length;
+  const good=sts.filter(s=>s.urgency===1).length;
+  document.getElementById('sUrg').textContent=urg;
+  document.getElementById('sSoon').textContent=soon;
+  document.getElementById('sGood').textContent=good;
+  // Alerts
+  const top=[...sts].filter(s=>s.urgency>0).sort((a,b)=>b.urgency-a.urgency||b.pct-a.pct).slice(0,3);
+  const al=document.getElementById('alertList');
+  if(!top.length){al.innerHTML='<div style="padding:20px;text-align:center;color:var(--label3);font-size:15px;font-weight:500">✅ All parts are good!</div>';}
+  else{al.innerHTML=top.map(s=>`
+    <div class="alert-row">
+      <div class="alert-icon-wrap dot-${s.cls}">${s.part.icon}</div>
+      <div class="alert-body">
+        <div class="alert-name">${s.part.name}</div>
+        <div class="alert-sub">Every ${s.part.iKm>0?s.part.iKm.toLocaleString()+' km':s.part.iDay+' days'}</div>
+        <div class="prog-track"><div class="prog-fill" style="width:${Math.min(100,s.pct)}%;background:var(--${s.cls==='red'?'red':s.cls==='yellow'?'yellow':'green'})"></div></div>
+      </div>
+      <div class="alert-badge badge-${s.cls}">${s.label}</div>
+    </div>`).join('');}
+  // Parts overview
+  document.getElementById('dashPartsList').innerHTML=sts.map(s=>`
+    <div class="alert-row">
+      <div class="alert-icon-wrap" style="background:${s.part.bg}">${s.part.icon}</div>
+      <div class="alert-body">
+        <div class="alert-name">${s.part.name}</div>
+        <div class="prog-track"><div class="prog-fill" style="width:${Math.min(100,s.pct)}%;background:var(--${s.cls==='red'?'red':s.cls==='yellow'?'yellow':'green'})"></div></div>
+      </div>
+      <span class="alert-badge badge-${s.cls}" style="font-size:10px">${s.label}</span>
+    </div>`).join('');
+}
+
+function renderTracker() {
+  const container = document.getElementById('trackerGroups');
+  container.innerHTML = '';
+  GROUPS_DEF.forEach(grp => {
+    if (grp.parts.length === 0 && grp.id !== 'custom') return;
+    const div = document.createElement('div');
+    div.className = 'part-group';
+    div.innerHTML = `<div class="part-group-label">${grp.label}</div>` +
+      grp.parts.map(p => {
+        const st = calcStatus(S.parts.find(x=>x.id===p.id)||p);
+        const nextKm = p.iKm>0?`Next @ ${(((S.parts.find(x=>x.id===p.id)||p).lastKm||0)+p.iKm).toLocaleString()} km`:(((S.parts.find(x=>x.id===p.id)||p).lastDate)?`Last: ${fmtDate((S.parts.find(x=>x.id===p.id)||p).lastDate)}`:'Not logged');
+        return `<div class="part-item" onclick="openModal('${p.id}')">
+          <div class="part-icon-bg" style="background:${p.bg}">${p.icon}</div>
+          <div class="part-info">
+            <div class="part-name">${p.name}</div>
+            <div class="part-detail">${nextKm}</div>
+            <div class="prog-track" style="width:100px;margin-top:4px">
+              <div style="height:3px;border-radius:2px;background:var(--${st.cls==='red'?'red':st.cls==='yellow'?'yellow':'green'});width:${Math.min(100,st.pct)}%"></div>
+            </div>
+          </div>
+          <div class="part-right">
+            <div class="part-status-badge badge-${st.cls}">${st.label}</div>
+            <div class="part-chevron">›</div>
+          </div>
+        </div>`;
+      }).join('') +
+      `<div class="add-part-btn" onclick="openAddModal('${grp.id}')">
+        <div class="add-part-icon">＋</div>
+        <div class="add-part-label">Add to ${grp.label}</div>
+      </div>`;
+    container.appendChild(div);
+  });
+  // Global custom add button
+  const addAll = document.createElement('div');
+  addAll.innerHTML = `<div class="add-part-btn" style="background:var(--bg2);border-radius:var(--r-lg);box-shadow:0 2px 12px var(--shadow);margin-bottom:14px" onclick="openAddModal('custom')">
+    <div class="add-part-icon">＋</div>
+    <div class="add-part-label">Add New Custom Part</div>
+  </div>`;
+  container.appendChild(addAll);
+}
+
+function renderHistory() {
+  const parts=['all',...new Set(S.history.map(h=>h.partId))];
+  document.getElementById('filterRow').innerHTML=parts.map(pid=>{
+    const lbl=pid==='all'?'All':S.parts.find(p=>p.id===pid)?.name||pid;
+    return `<button class="filter-chip ${histFilter===pid?'active':''}" onclick="setHFilter('${pid}')">${lbl}</button>`;
+  }).join('');
+  const filt=histFilter==='all'?S.history:S.history.filter(h=>h.partId===histFilter);
+  const sorted=[...filt].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tl=document.getElementById('histTimeline');
+  if(!sorted.length){tl.innerHTML='<div class="hist-empty"><div class="hist-empty-icon">📋</div><div class="hist-empty-text">No records yet</div></div>';return;}
+  tl.innerHTML=sorted.map((h,i)=>`
+    <div class="hist-entry">
+      <div class="hist-dot" style="background:${i===0?'var(--blue)':i===1?'var(--green)':'var(--label4)'}"></div>
+      <div class="hist-card">
+        <div class="hist-card-top">
+          <div><div class="hist-part-name">${h.icon||'🔧'} ${h.part}</div><div class="hist-date">${fmtDate(h.date)}</div></div>
+          <button class="hist-del" onclick="delHistory(${h.id})">✕</button>
+        </div>
+        ${h.km?`<div class="hist-km">@ ${Number(h.km).toLocaleString()} km</div>`:''}
+        ${h.notes?`<div class="hist-notes">"${h.notes}"</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// OIL TRACKER
+// ═══════════════════════════════════════════════
+document.getElementById('oilBrandSel').addEventListener('change', function(){
+  document.getElementById('oilBrandCustom').style.display = this.value==='custom'?'block':'none';
+});
+document.getElementById('oilAdditive').addEventListener('change', function(){
+  document.getElementById('oilAdditiveCustom').style.display = this.value==='custom-additive'?'block':'none';
+});
+document.getElementById('fuelAdditive').addEventListener('change', function(){
+  document.getElementById('fuelAdditiveCustom').style.display = this.value==='custom-fuel'?'block':'none';
+});
+
+document.querySelectorAll('.oil-stars').forEach(group=>{
+  group.querySelectorAll('.oil-star').forEach(star=>{
+    star.addEventListener('click',()=>{
+      const cat = group.dataset.cat;
+      const val = parseInt(star.dataset.v);
+      oilRatings[cat] = val;
+      group.querySelectorAll('.oil-star').forEach((s,i)=>{
+        s.classList.toggle('active', i<val);
+      });
+    });
+  });
+});
+
+function saveOilEntry() {
+  const selEl = document.getElementById('oilBrandSel');
+  const brand = selEl.value==='custom'
+    ? (document.getElementById('oilBrandCustom').value.trim()||'Custom Brand')
+    : selEl.value;
+  if (!brand) { toast('Piliin ang oil brand'); return; }
+  const date = document.getElementById('oilDate').value || todayStr();
+  const km = parseInt(document.getElementById('oilKm').value)||0;
+  const notes = document.getElementById('oilNotes').value;
+  // Oil additive
+  const oilAddSel = document.getElementById('oilAdditive');
+  const oilAdditive = oilAddSel.value==='custom-additive'
+    ? (document.getElementById('oilAdditiveCustom').value.trim()||'Custom Additive')
+    : oilAddSel.value;
+  // Fuel additive
+  const fuelAddSel = document.getElementById('fuelAdditive');
+  const fuelAdditive = fuelAddSel.value==='custom-fuel'
+    ? (document.getElementById('fuelAdditiveCustom').value.trim()||'Custom Fuel Additive')
+    : fuelAddSel.value;
+  const entry = {id:Date.now(),brand,date,km,notes,oilAdditive,fuelAdditive,ratings:{...oilRatings}};
+  S.oilHistory.unshift(entry);
+  persist();
+  renderOilHistory();
+  updateOilHero();
+  // Reset form
+  selEl.value=''; document.getElementById('oilDate').value='';
+  document.getElementById('oilKm').value=''; document.getElementById('oilNotes').value='';
+  oilAddSel.value=''; fuelAddSel.value='';
+  document.getElementById('oilAdditiveCustom').style.display='none';
+  document.getElementById('fuelAdditiveCustom').style.display='none';
+  oilRatings={high:0,low:0,smooth:0,overall:0};
+  document.querySelectorAll('.oil-star').forEach(s=>s.classList.remove('active'));
+  toast('Oil record saved!');
+}
+
+function renderOilHistory() {
+  const el = document.getElementById('oilHistList');
+  if (!S.oilHistory.length) {
+    el.innerHTML='<div style="padding:24px;text-align:center;color:var(--label3);font-size:14px">No oil records yet</div>';
+    return;
+  }
+  el.innerHTML = S.oilHistory.map(h=>`
+    <div class="oil-history-item">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <div class="oil-brand-badge">${h.brand}</div>
+          ${h.km?`<div style="font-size:12px;color:var(--label3);font-family:var(--mono);font-weight:600">@ ${Number(h.km).toLocaleString()} km</div>`:''}
+          <div style="font-size:11px;color:var(--label3)">${fmtDate(h.date)}</div>
+        </div>
+        ${(h.oilAdditive)?`<div style="font-size:11px;color:var(--blue);font-weight:600;margin-bottom:3px">🧪 Oil: ${h.oilAdditive}</div>`:''}
+        ${(h.fuelAdditive)?`<div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:3px">⛽ Fuel: ${h.fuelAdditive}</div>`:''}
+        <div class="oil-perf-row">
+          ${h.ratings.high?`<div class="oil-perf-chip">High ${'⭐'.repeat(h.ratings.high)}</div>`:''}
+          ${h.ratings.low?`<div class="oil-perf-chip">Low ${'⭐'.repeat(h.ratings.low)}</div>`:''}
+          ${h.ratings.smooth?`<div class="oil-perf-chip">Smooth ${'⭐'.repeat(h.ratings.smooth)}</div>`:''}
+          ${h.ratings.overall?`<div class="oil-perf-chip">Overall ${'⭐'.repeat(h.ratings.overall)}</div>`:''}
+        </div>
+        ${h.notes?`<div style="font-size:12px;color:var(--label3);font-style:italic;margin-top:4px">"${h.notes}"</div>`:''}
+      </div>
+      <button onclick="delOilEntry(${h.id})" style="color:var(--red);font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;background:rgba(255,69,58,0.1);flex-shrink:0;align-self:flex-start">✕</button>
+    </div>`).join('');
+}
+
+
+function delOilEntry(id) {
+  S.oilHistory = S.oilHistory.filter(h=>h.id!==id);
+  persist(); renderOilHistory(); updateOilHero();
+}
+
+function updateOilHero() {
+  const el = document.getElementById('oilHeroTitle');
+  const sub = document.getElementById('oilHeroBrand');
+  if (!S.oilHistory.length) {
+    el.textContent='No oil logged'; sub.textContent='Add your current oil below'; return;
+  }
+  const latest = S.oilHistory[0];
+  el.textContent = latest.brand;
+  const avgOvr = latest.ratings.overall || 0;
+  const stars = avgOvr ? '⭐'.repeat(avgOvr)+' Overall' : '';
+  sub.textContent = `Changed ${fmtDate(latest.date)}${latest.km?' @ '+Number(latest.km).toLocaleString()+' km':''}  ${stars}`;
+}
+
+// ═══════════════════════════════════════════════
+// MODAL — EDIT PART
+// ═══════════════════════════════════════════════
+function openModal(id) {
+  activePartId=id;
+  const p=S.parts.find(x=>x.id===id);
+  if(!p)return;
+  document.getElementById('modalTitle').textContent=`${p.icon} ${p.name}`;
+  document.getElementById('mDate').value=p.lastDate||'';
+  document.getElementById('mKm').value=p.lastKm||'';
+  document.getElementById('mIKm').value=p.iKm||'';
+  document.getElementById('mIDay').value=p.iDay||'';
+  document.getElementById('mNotes').value=p.notes||'';
+  document.getElementById('mDate').max=todayStr();
+  document.getElementById('modalDeleteBtn').style.display=S.history.some(h=>h.partId===id)?'block':'none';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal(){document.getElementById('editModal').classList.remove('open');activePartId=null;}
+function closeModalOutside(e){if(e.target===document.getElementById('editModal'))closeModal();}
+function saveModalPart(){
+  const p=S.parts.find(x=>x.id===activePartId);if(!p)return;
+  const nd=document.getElementById('mDate').value;
+  const nk=parseInt(document.getElementById('mKm').value)||0;
+  const nik=parseInt(document.getElementById('mIKm').value)||p.iKm;
+  const nid=parseInt(document.getElementById('mIDay').value)||p.iDay;
+  const nn=document.getElementById('mNotes').value;
+  if(nd&&(nd!==p.lastDate||nk!==p.lastKm)){
+    S.history.push({id:Date.now(),part:p.name,icon:p.icon,partId:p.id,date:nd||todayStr(),km:nk,notes:nn});
+  }
+  p.lastDate=nd;p.lastKm=nk;p.iKm=nik;p.iDay=nid;p.notes=nn;
+  persist();renderAll();closeModal();toast(`${p.name} updated`);
+}
+function deleteCurrentEntry(){
+  if(!activePartId)return;
+  const ph=S.history.filter(h=>h.partId===activePartId);if(!ph.length)return;
+  if(!confirm('Delete the last record for this part?'))return;
+  const latest=ph.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  S.history=S.history.filter(h=>h.id!==latest.id);
+  persist();renderAll();closeModal();toast('Record deleted');
+}
+
+// ═══════════════════════════════════════════════
+// MODAL — ADD CUSTOM PART
+// ═══════════════════════════════════════════════
+let addModalGroup = 'custom';
+function openAddModal(grpId) {
+  addModalGroup = grpId;
+  document.getElementById('cpName').value='';
+  document.getElementById('cpIcon').value='🔩';
+  document.getElementById('cpIKm').value='';
+  document.getElementById('cpIDay').value='';
+  document.getElementById('addPartModal').classList.add('open');
+}
+function closeAddModal(){document.getElementById('addPartModal').classList.remove('open');}
+function closeAddModalOutside(e){if(e.target===document.getElementById('addPartModal'))closeAddModal();}
+function saveCustomPart(){
+  const name=document.getElementById('cpName').value.trim();
+  if(!name){toast('Lagyan ng pangalan ang part');return;}
+  const icon=document.getElementById('cpIcon').value||'🔩';
+  const iKm=parseInt(document.getElementById('cpIKm').value)||0;
+  const iDay=parseInt(document.getElementById('cpIDay').value)||0;
+  const id='custom-'+Date.now();
+  const newPart={id,name,icon,bg:'rgba(120,120,128,0.12)',iKm,iDay};
+  // Add to group
+  const grp = GROUPS_DEF.find(g=>g.id===addModalGroup)||GROUPS_DEF.find(g=>g.id==='custom');
+  grp.parts.push(newPart);
+  // Add to S.parts
+  S.parts.push({...newPart,lastKm:0,lastDate:'',notes:''});
+  persist();renderAll();closeAddModal();toast(`${name} added!`);
+}
+
+// ═══════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════
+const PALETTE=['#0A84FF','#30D158','#FFD60A','#FF453A','#BF5AF2','#FF9F0A','#5AC8FA','#32ADE6','#FF6482','#AC8E68','#6C6C70','#2C2C2E'];
+function renderCharts(){
+  const hist=S.history;
+  if(!hist.length){document.getElementById('chartsContent').style.display='none';document.getElementById('chartsEmpty').style.display='block';return;}
+  document.getElementById('chartsContent').style.display='block';document.getElementById('chartsEmpty').style.display='none';
+  const isDark=S.dark;
+  const gridColor=isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)';
+  const tickColor=isDark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)';
+  const bg2=isDark?'#1C1C1E':'#ffffff';
+  Chart.defaults.color=tickColor;
+  Chart.defaults.font.family="-apple-system,'SF Pro Display',sans-serif";
+  const ttOpts={backgroundColor:isDark?'#2C2C2E':'#fff',titleColor:isDark?'#fff':'#000',bodyColor:isDark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.6)',borderColor:isDark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)',borderWidth:1,cornerRadius:12,padding:12};
+  const freqMap={};
+  hist.forEach(h=>{freqMap[h.part]=(freqMap[h.part]||0)+1;});
+  const fLabels=Object.keys(freqMap);
+  const fVals=fLabels.map(l=>freqMap[l]);
+  if(chartFreqInst)chartFreqInst.destroy();
+  chartFreqInst=new Chart(document.getElementById('chartFreq'),{type:'bar',data:{labels:fLabels.map(l=>l.split(' ')[0]),datasets:[{data:fVals,backgroundColor:PALETTE.slice(0,fLabels.length).map(c=>c+'33'),borderColor:PALETTE.slice(0,fLabels.length),borderWidth:2,borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{...ttOpts,callbacks:{title:i=>fLabels[i[0].dataIndex],label:i=>`${i.raw} service${i.raw!==1?'s':''}`}}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:10}}},y:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:10},stepSize:1},beginAtZero:true}}}});
+  const total=fVals.reduce((a,b)=>a+b,0);
+  document.getElementById('pieLegend').innerHTML=fLabels.map((l,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></div>${l} (${Math.round(fVals[i]/total*100)}%)</div>`).join('');
+  if(chartPieInst)chartPieInst.destroy();
+  chartPieInst=new Chart(document.getElementById('chartPie'),{type:'doughnut',data:{labels:fLabels,datasets:[{data:fVals,backgroundColor:PALETTE.slice(0,fLabels.length).map(c=>c+'bb'),borderColor:PALETTE.slice(0,fLabels.length),borderWidth:2,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{...ttOpts,callbacks:{label:i=>`${i.label}: ${i.raw} (${Math.round(i.raw/total*100)}%)`}}}}});
+  const mMap={};
+  hist.forEach(h=>{const m=h.date.slice(0,7);mMap[m]=(mMap[m]||0)+1;});
+  const mKeys=Object.keys(mMap).sort();
+  const mLabels=mKeys.map(k=>{const[y,m]=k.split('-');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]+' \''+y.slice(2);});
+  if(chartLineInst)chartLineInst.destroy();
+  const lineGrad=document.getElementById('chartLine').getContext('2d').createLinearGradient(0,0,0,200);
+  lineGrad.addColorStop(0,'rgba(10,132,255,0.28)');lineGrad.addColorStop(1,'rgba(10,132,255,0)');
+  chartLineInst=new Chart(document.getElementById('chartLine'),{type:'line',data:{labels:mLabels,datasets:[{data:mKeys.map(k=>mMap[k]),borderColor:'#0A84FF',borderWidth:2.5,backgroundColor:lineGrad,fill:true,tension:0.4,pointBackgroundColor:'#0A84FF',pointRadius:5,pointHoverRadius:7,pointBorderColor:bg2,pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{...ttOpts,callbacks:{label:i=>`${i.raw} service${i.raw!==1?'s':''}`}}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:10}}},y:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:10},stepSize:1},beginAtZero:true}}}});
+}
+
+// ═══════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════
+function saveOdo(){const v=parseInt(document.getElementById('odoInput').value)||0;S.odo=v;persist();renderAll();toast('Odometer updated');}
+function delHistory(id){S.history=S.history.filter(h=>h.id!==id);persist();renderAll();toast('Record deleted');}
+function setHFilter(id){histFilter=id;renderHistory();}
+function exportData(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`aerox_v2_${todayStr()}.json`;a.click();
+  URL.revokeObjectURL(url);toast('Data exported');
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const imp=JSON.parse(e.target.result);
+      if(imp.parts&&Array.isArray(imp.parts)){
+        S.odo=imp.odo||0;S.history=imp.history||[];S.oilHistory=imp.oilHistory||[];
+        if(imp.customParts)GROUPS_DEF.find(g=>g.id==='custom').parts=imp.customParts;
+        const allDefs=flatParts();
+        S.parts=allDefs.map(d=>{const f=imp.parts.find(p=>p.id===d.id);return f?{...d,...f}:{...d,lastKm:0,lastDate:'',notes:''};});
+        persist();renderAll();toast('Data imported');
+      }else toast('Invalid file');
+    }catch{toast('Failed to read file');}
+    input.value='';
+  };
+  r.readAsText(file);
+}
+function resetData(){
+  if(!confirm('Reset all data? This cannot be undone.'))return;
+  GROUPS_DEF.find(g=>g.id==='custom').parts=[];
+  S={odo:0,parts:flatParts().map(d=>({...d,lastKm:0,lastDate:'',notes:''})),history:[],oilHistory:[],dark:S.dark};
+  persist();renderAll();toast('Data reset');
+}
+
+// ═══════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════
+function toggleTheme(){
+  S.dark=!S.dark;applyTheme(true);persist();
+  // Re-render charts with new colors if on charts page
+  if(document.getElementById('page-charts').classList.contains('active'))setTimeout(renderCharts,60);
+}
+function applyTheme(animate){
+  if(animate)document.body.style.transition='background 0.3s,color 0.3s';
+  document.documentElement.setAttribute('data-theme',S.dark?'dark':'light');
+  document.getElementById('themeBtn').textContent=S.dark?'🌙':'☀️';
+  const tog=document.getElementById('darkToggle');
+  if(tog)tog.classList.toggle('on',S.dark);
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+const PAGE_TITLES={dash:'Dashboard',track:'Tracker',charts:'Charts',hist:'History',oil:'Engine Oil',set:'Settings'};
+function goPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  document.getElementById('pageTitle').textContent=PAGE_TITLES[id]||'';
+  if(id==='hist')renderHistory();
+  if(id==='charts')setTimeout(renderCharts,80);
+  if(id==='set'){document.getElementById('totalRec').textContent=S.history.length;renderGuide();}
+  if(id==='oil'){renderOilHistory();updateOilHero();}
+}
+
+// ═══════════════════════════════════════════════
+// SETTINGS GUIDE
+// ═══════════════════════════════════════════════
+function renderGuide(){
+  const gl=document.getElementById('guideList');
+  if(!gl||gl.dataset.rendered)return;
+  gl.dataset.rendered='1';
+  gl.innerHTML=flatParts().filter(d=>!d.id.startsWith('custom-')).map(d=>`
+    <div class="guide-item">
+      <div class="guide-emoji">${d.icon}</div>
+      <div class="guide-name">${d.name}</div>
+      <div class="guide-val">${d.iKm>0?d.iKm.toLocaleString()+' km':''}${d.iKm>0&&d.iDay>0?' · ':''}${d.iDay>0?d.iDay+'d':''}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function fmtDate(s){
+  if(!s)return '—';
+  return new Date(s+'T00:00:00').toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'});
+}
+
+// ═══════════════════════════════════════════════
+// EVENT LISTENERS
+// ═══════════════════════════════════════════════
+document.getElementById('odoInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.target.blur();saveOdo();}});
+document.getElementById('exportBtnTop').addEventListener('click',exportData);
+document.getElementById('themeBtn').addEventListener('click',toggleTheme);
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+loadState();
+renderAll();
+</script>
+
+<div id="installBanner" style="
+  display:none;position:fixed;bottom:calc(var(--tab-h) + 12px);left:50%;
+  transform:translateX(-50%);z-index:400;
+  background:var(--blue);color:#fff;
+  padding:12px 20px;border-radius:30px;
+  font-size:14px;font-weight:700;
+  box-shadow:0 4px 20px rgba(10,132,255,0.5);
+  display:none;align-items:center;gap:10px;
+  white-space:nowrap;
+" id="installBanner">
+  <span>📲 I-add sa Home Screen</span>
+  <button id="installBtn" style="background:rgba(255,255,255,0.25);border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer">Install</button>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:18px;cursor:pointer;padding:0 4px">✕</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// ═══════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// ═══════════════════════════════════════════════
+// PWA INSTALL PROMPT
+// ═══════════════════════════════════════════════
+let deferredPrompt;
+const installBanner = document.getElementById('installBanner');
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBanner.style.display = 'flex';
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    installBanner.style.display = 'none';
+    toast('App installed! 🏍️');
+  }
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  installBanner.style.display = 'none';
+  deferredPrompt = null;
+});
+</script>
+</body>
+</html>
