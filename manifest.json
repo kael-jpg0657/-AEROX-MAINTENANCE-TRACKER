@@ -1,7 +1,7 @@
 {
   "name": "Aerox V2 Maintenance Tracker",
   "short_name": "Aerox V2",
-  "description": "Yamaha Aerox V2 Maintenance Tracker - Track your bike maintenance offline",
+  "description": "Yamaha Aerox V2 Maintenance Monitoring Tracker",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
@@ -23,7 +23,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "screenshots": [],
-  "prefer_related_applications": false
+  ]
 }
