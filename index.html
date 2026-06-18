@@ -82,6 +82,52 @@ input,textarea,select{font-family:var(--font)}
 .odo-save-btn{background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:9px 22px;font-size:14px;font-weight:600;color:#fff;backdrop-filter:blur(8px);transition:background 0.18s,transform 0.15s;display:inline-block}
 .odo-save-btn:active{background:rgba(255,255,255,0.32);transform:scale(0.96)}
 
+/* ── QUICK +KM BUTTONS ──────────────────────── */
+.quick-km-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.qkm-btn{flex:1;min-width:52px;padding:8px 4px;border-radius:14px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.28);font-size:13px;font-weight:700;color:#fff;text-align:center;transition:background 0.15s,transform 0.15s}
+.qkm-btn:active{background:rgba(255,255,255,0.35);transform:scale(0.93)}
+
+/* ── TRIP LOGGER ────────────────────────────── */
+.trip-card{background:var(--bg2);border-radius:var(--r-lg);padding:18px 16px;margin-bottom:14px;box-shadow:0 2px 12px var(--shadow)}
+.trip-label{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--label3);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.trip-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.trip-field-lbl{font-size:10px;font-weight:700;color:var(--label3);letter-spacing:0.6px;text-transform:uppercase;margin-bottom:4px}
+.trip-input{background:var(--fill);border:none;border-radius:var(--r-sm);padding:10px 12px;font-size:18px;font-weight:700;color:var(--label);outline:none;width:100%;font-family:var(--mono);transition:box-shadow 0.18s}
+.trip-input:focus{box-shadow:0 0 0 3px rgba(10,132,255,0.22)}
+.trip-result{text-align:center;padding:10px;background:var(--fill);border-radius:var(--r-md);margin-bottom:12px;display:none}
+.trip-dist{font-size:32px;font-weight:800;font-family:var(--mono);color:var(--green);letter-spacing:-1px}
+.trip-dist-lbl{font-size:11px;font-weight:600;color:var(--label3);margin-top:2px;text-transform:uppercase;letter-spacing:0.6px}
+.trip-btns{display:flex;gap:10px}
+.trip-log-btn{flex:1;padding:12px;border-radius:var(--r-md);background:var(--green);color:#fff;font-size:15px;font-weight:800;box-shadow:0 4px 14px rgba(48,209,88,0.35);transition:opacity 0.15s,transform 0.15s}
+.trip-log-btn:active{opacity:0.82;transform:scale(0.97)}
+.trip-reset-btn{padding:12px 16px;border-radius:var(--r-md);background:var(--fill);color:var(--label2);font-size:14px;font-weight:700;transition:background 0.15s,transform 0.15s}
+.trip-reset-btn:active{background:var(--fill2);transform:scale(0.97)}
+.trip-history-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:0.5px solid var(--separator)}
+.trip-hist-dist{font-size:18px;font-weight:800;font-family:var(--mono);color:var(--blue);min-width:70px}
+.trip-hist-info{flex:1;font-size:12px;color:var(--label3)}
+
+/* ── GPS TRACKER ────────────────────────────── */
+.gps-card{background:var(--bg2);border-radius:var(--r-lg);padding:18px 16px;margin-bottom:14px;box-shadow:0 2px 12px var(--shadow);text-align:center}
+.gps-label{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--label3);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.gps-dist-big{font-size:48px;font-weight:800;font-family:var(--mono);letter-spacing:-2px;line-height:1;margin-bottom:4px}
+.gps-unit{font-size:16px;font-weight:600;color:var(--label3)}
+.gps-stats-row{display:flex;justify-content:center;gap:24px;margin:12px 0;padding:10px 0;border-top:0.5px solid var(--separator);border-bottom:0.5px solid var(--separator)}
+.gps-stat{text-align:center}
+.gps-stat-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--label)}
+.gps-stat-lbl{font-size:10px;font-weight:600;color:var(--label3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.gps-status{font-size:12px;font-weight:600;color:var(--label3);margin:10px 0;min-height:18px}
+.gps-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--label4);margin-right:5px;vertical-align:middle}
+.gps-dot.active{background:var(--green);box-shadow:0 0 0 3px rgba(48,209,88,0.25);animation:gpsPulse 1.4s ease-in-out infinite}
+@keyframes gpsPulse{0%,100%{box-shadow:0 0 0 0 rgba(48,209,88,0.4)}50%{box-shadow:0 0 0 6px rgba(48,209,88,0)}}
+.gps-btns{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.gps-start-btn{flex:1;padding:12px;border-radius:var(--r-md);background:var(--green);color:#fff;font-size:15px;font-weight:800;box-shadow:0 4px 14px rgba(48,209,88,0.35);transition:opacity 0.15s,transform 0.15s}
+.gps-start-btn.running{background:var(--red);box-shadow:0 4px 14px rgba(255,69,58,0.35)}
+.gps-start-btn:active{opacity:0.82;transform:scale(0.97)}
+.gps-save-btn{padding:12px 18px;border-radius:var(--r-md);background:var(--blue);color:#fff;font-size:14px;font-weight:700;box-shadow:0 4px 12px rgba(10,132,255,0.3);transition:opacity 0.15s,transform 0.15s;display:none}
+.gps-save-btn:active{opacity:0.82;transform:scale(0.97)}
+.gps-reset-btn{padding:12px 16px;border-radius:var(--r-md);background:var(--fill);color:var(--label2);font-size:14px;font-weight:700;transition:background 0.15s,transform 0.15s}
+.gps-reset-btn:active{background:var(--fill2);transform:scale(0.97)}
+
 /* ── WARM-UP TIMER ──────────────────────────── */
 .warmup-card{
   background:var(--bg2);border-radius:var(--r-lg);
@@ -311,6 +357,69 @@ canvas{display:block!important;width:100%!important}
     </div>
     <div class="odo-sub" id="odoSub">Tap the number to edit</div>
     <button class="odo-save-btn" onclick="saveOdo()">Update</button>
+    <div class="quick-km-row">
+      <button class="qkm-btn" onclick="quickAddKm(5)">+5</button>
+      <button class="qkm-btn" onclick="quickAddKm(10)">+10</button>
+      <button class="qkm-btn" onclick="quickAddKm(20)">+20</button>
+      <button class="qkm-btn" onclick="quickAddKm(50)">+50</button>
+      <button class="qkm-btn" onclick="quickAddKm(100)">+100</button>
+    </div>
+  </div>
+
+  <!-- Trip Logger -->
+  <div class="section-header">🗺️ Trip Logger</div>
+  <div class="trip-card">
+    <div class="trip-label">📍 Log a Trip</div>
+    <div class="trip-fields">
+      <div>
+        <div class="trip-field-lbl">Start KM</div>
+        <input class="trip-input" id="tripStart" type="number" placeholder="0" inputmode="numeric">
+      </div>
+      <div>
+        <div class="trip-field-lbl">End KM</div>
+        <input class="trip-input" id="tripEnd" type="number" placeholder="0" inputmode="numeric">
+      </div>
+    </div>
+    <div class="trip-result" id="tripResult">
+      <div class="trip-dist" id="tripDistVal">0</div>
+      <div class="trip-dist-lbl">km traveled</div>
+    </div>
+    <div class="trip-btns">
+      <button class="trip-log-btn" onclick="logTrip()">✅ Log Trip & Update Odo</button>
+      <button class="trip-reset-btn" onclick="resetTrip()">✕</button>
+    </div>
+    <div id="tripHistSection" style="margin-top:14px;display:none">
+      <div style="font-size:11px;font-weight:700;color:var(--label3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px">Recent Trips</div>
+      <div id="tripHistList"></div>
+    </div>
+  </div>
+
+  <!-- GPS Distance Tracker -->
+  <div class="section-header">📡 Live GPS Tracker</div>
+  <div class="gps-card">
+    <div class="gps-label"><span class="gps-dot" id="gpsDot"></span> GPS Distance</div>
+    <div class="gps-dist-big" id="gpsDist">0.00</div>
+    <div class="gps-unit">km this session</div>
+    <div class="gps-stats-row">
+      <div class="gps-stat">
+        <div class="gps-stat-val" id="gpsSpeed">0</div>
+        <div class="gps-stat-lbl">km/h</div>
+      </div>
+      <div class="gps-stat">
+        <div class="gps-stat-val" id="gpsMaxSpeed">0</div>
+        <div class="gps-stat-lbl">Max km/h</div>
+      </div>
+      <div class="gps-stat">
+        <div class="gps-stat-val" id="gpsDuration">0:00</div>
+        <div class="gps-stat-lbl">Duration</div>
+      </div>
+    </div>
+    <div class="gps-status" id="gpsStatus">Tap Start to begin tracking</div>
+    <div class="gps-btns">
+      <button class="gps-start-btn" id="gpsStartBtn" onclick="gpsToggle()">▶ Start GPS</button>
+      <button class="gps-save-btn" id="gpsSaveBtn" onclick="gpsSaveToOdo()">💾 Save to Odo</button>
+      <button class="gps-reset-btn" id="gpsResetBtn" onclick="gpsReset()">↺</button>
+    </div>
   </div>
 
   <!-- Warm-up Timer -->
@@ -433,7 +542,7 @@ canvas{display:block!important;width:100%!important}
     <div class="settings-row">
       <div class="settings-icon" style="background:rgba(90,200,250,0.12)">ℹ️</div>
       <div class="settings-label">App Version</div>
-      <div class="settings-value">3.1</div>
+      <div class="settings-value">3.2</div>
     </div>
   </div>
   <div class="section-header">Interval Reference</div>
@@ -795,9 +904,37 @@ function wuTick() {
     document.getElementById('wuStartBtn').textContent = 'START ▶';
     document.getElementById('wuSkipBtn').style.display = 'none';
     toast('Warm-up complete! Ride safely 🏍️');
-    if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    if(navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+    wuPlayDoneSound();
   }
   wuUpdateDisplay();
+}
+
+function wuPlayDoneSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // 3-beep victory chime: low → mid → high
+    const beeps = [
+      { freq: 440, start: 0,   dur: 0.15 },
+      { freq: 554, start: 0.2, dur: 0.15 },
+      { freq: 659, start: 0.4, dur: 0.35 },
+    ];
+    beeps.forEach(({ freq, start, dur }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur + 0.05);
+    });
+    // Close context after sounds finish
+    setTimeout(() => ctx.close(), 1200);
+  } catch(e) { /* audio not supported, silently ignore */ }
 }
 function wuUpdateDisplay() {
   const m = Math.floor(wuRemaining/60);
@@ -1246,7 +1383,10 @@ function resetData(){
   if(!confirm('Reset all data? This cannot be undone.'))return;
   GROUPS_DEF.find(g=>g.id==='custom').parts=[];
   S={odo:0,parts:flatParts().map(d=>({...d,lastKm:0,lastDate:'',notes:''})),history:[],oilHistory:[],dark:S.dark};
-  persist();renderAll();toast('Data reset');
+  S_trips=[];
+  persist();persistTrips();renderAll();renderTripHistory();
+  gpsReset();
+  toast('Data reset');
 }
 
 // ═══════════════════════════════════════════════
@@ -1310,6 +1450,189 @@ function fmtDate(s){
 }
 
 // ═══════════════════════════════════════════════
+// QUICK +KM BUTTONS
+// ═══════════════════════════════════════════════
+function quickAddKm(km) {
+  S.odo = (S.odo || 0) + km;
+  document.getElementById('odoInput').value = S.odo;
+  persist(); renderAll();
+  toast(`+${km} km → ${S.odo.toLocaleString()} km`);
+}
+
+// ═══════════════════════════════════════════════
+// TRIP LOGGER
+// ═══════════════════════════════════════════════
+let S_trips = [];
+
+function loadTrips() {
+  try { S_trips = JSON.parse(localStorage.getItem('aerox_trips') || '[]'); } catch(e) { S_trips = []; }
+}
+function persistTrips() {
+  localStorage.setItem('aerox_trips', JSON.stringify(S_trips));
+}
+function logTrip() {
+  const start = parseInt(document.getElementById('tripStart').value) || 0;
+  const end = parseInt(document.getElementById('tripEnd').value) || 0;
+  if (!start && !end) { toast('I-enter ang start at end na km'); return; }
+  const dist = end - start;
+  if (dist <= 0) { toast('End km dapat mas malaki sa start km'); return; }
+  // Show result
+  document.getElementById('tripDistVal').textContent = dist.toLocaleString();
+  document.getElementById('tripResult').style.display = 'block';
+  // Update odometer if end km > current
+  if (end > S.odo) { S.odo = end; document.getElementById('odoInput').value = S.odo; }
+  // Save trip
+  const trip = { id: Date.now(), start, end, dist, date: todayStr() };
+  S_trips.unshift(trip);
+  if (S_trips.length > 20) S_trips = S_trips.slice(0, 20);
+  persistTrips(); persist(); renderAll();
+  renderTripHistory();
+  toast(`Trip logged: ${dist.toLocaleString()} km`);
+}
+function resetTrip() {
+  document.getElementById('tripStart').value = '';
+  document.getElementById('tripEnd').value = '';
+  document.getElementById('tripResult').style.display = 'none';
+}
+function renderTripHistory() {
+  const sec = document.getElementById('tripHistSection');
+  const list = document.getElementById('tripHistList');
+  if (!S_trips.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  list.innerHTML = S_trips.slice(0, 5).map(t => `
+    <div class="trip-history-row">
+      <div class="trip-hist-dist">+${t.dist.toLocaleString()} km</div>
+      <div class="trip-hist-info">${fmtDate(t.date)} · ${t.start.toLocaleString()} → ${t.end.toLocaleString()} km</div>
+      <button onclick="delTrip(${t.id})" style="color:var(--red);font-size:12px;font-weight:700;padding:4px 8px;border-radius:8px;background:rgba(255,69,58,0.1)">✕</button>
+    </div>`).join('');
+}
+function delTrip(id) {
+  S_trips = S_trips.filter(t => t.id !== id);
+  persistTrips(); renderTripHistory();
+  toast('Trip deleted');
+}
+// Auto-fill trip start from current odo
+document.getElementById('tripStart').addEventListener('focus', function(){
+  if (!this.value && S.odo) this.value = S.odo;
+});
+
+// ═══════════════════════════════════════════════
+// GPS DISTANCE TRACKER
+// ═══════════════════════════════════════════════
+let gpsRunning = false;
+let gpsWatchId = null;
+let gpsLastPos = null;
+let gpsTotalDist = 0; // meters
+let gpsMaxSpeedKmh = 0;
+let gpsStartTime = null;
+let gpsDurationTimer = null;
+let gpsSessionDist = 0;
+
+function gpsToggle() {
+  if (gpsRunning) { gpsStop(); } else { gpsStart(); }
+}
+
+function gpsStart() {
+  if (!navigator.geolocation) {
+    document.getElementById('gpsStatus').textContent = 'GPS hindi available sa browser mo';
+    return;
+  }
+  gpsRunning = true;
+  gpsStartTime = Date.now();
+  document.getElementById('gpsStartBtn').textContent = '⏹ Stop GPS';
+  document.getElementById('gpsStartBtn').classList.add('running');
+  document.getElementById('gpsDot').classList.add('active');
+  document.getElementById('gpsStatus').textContent = 'Kumuha ng GPS signal...';
+  document.getElementById('gpsSaveBtn').style.display = 'none';
+
+  gpsDurationTimer = setInterval(gpsUpdateDuration, 1000);
+
+  gpsWatchId = navigator.geolocation.watchPosition(
+    gpsOnPosition,
+    gpsOnError,
+    { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+  );
+}
+
+function gpsStop() {
+  gpsRunning = false;
+  if (gpsWatchId !== null) { navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId = null; }
+  clearInterval(gpsDurationTimer);
+  gpsLastPos = null;
+  document.getElementById('gpsStartBtn').textContent = '▶ Start GPS';
+  document.getElementById('gpsStartBtn').classList.remove('running');
+  document.getElementById('gpsDot').classList.remove('active');
+  document.getElementById('gpsStatus').textContent = gpsTotalDist > 0 ? 'Session stopped. I-save sa odometer?' : 'Session stopped.';
+  document.getElementById('gpsSpeed').textContent = '0';
+  if (gpsTotalDist > 10) { document.getElementById('gpsSaveBtn').style.display = 'inline-block'; }
+}
+
+function gpsReset() {
+  gpsStop();
+  gpsTotalDist = 0; gpsMaxSpeedKmh = 0; gpsStartTime = null; gpsSessionDist = 0;
+  document.getElementById('gpsDist').textContent = '0.00';
+  document.getElementById('gpsSpeed').textContent = '0';
+  document.getElementById('gpsMaxSpeed').textContent = '0';
+  document.getElementById('gpsDuration').textContent = '0:00';
+  document.getElementById('gpsStatus').textContent = 'Tap Start to begin tracking';
+  document.getElementById('gpsSaveBtn').style.display = 'none';
+}
+
+function gpsOnPosition(pos) {
+  const { latitude, longitude, speed } = pos.coords;
+  const speedKmh = speed ? Math.round(speed * 3.6) : 0;
+  document.getElementById('gpsSpeed').textContent = speedKmh;
+  if (speedKmh > gpsMaxSpeedKmh) {
+    gpsMaxSpeedKmh = speedKmh;
+    document.getElementById('gpsMaxSpeed').textContent = gpsMaxSpeedKmh;
+  }
+
+  if (gpsLastPos) {
+    const d = gpsHaversine(gpsLastPos.lat, gpsLastPos.lng, latitude, longitude);
+    // Filter noise: only count if moved >3m
+    if (d > 3) {
+      gpsTotalDist += d;
+      const km = (gpsTotalDist / 1000).toFixed(2);
+      document.getElementById('gpsDist').textContent = km;
+      document.getElementById('gpsStatus').textContent = `📡 Tracking... ${km} km`;
+    }
+  }
+  gpsLastPos = { lat: latitude, lng: longitude };
+}
+
+function gpsOnError(err) {
+  const msgs = { 1: 'Location permission denied. I-allow sa browser settings.', 2: 'GPS signal weak. Subukan sa labas.', 3: 'GPS timeout. Subukan ulit.' };
+  document.getElementById('gpsStatus').textContent = msgs[err.code] || 'GPS error';
+}
+
+function gpsUpdateDuration() {
+  if (!gpsStartTime) return;
+  const secs = Math.floor((Date.now() - gpsStartTime) / 1000);
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  document.getElementById('gpsDuration').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function gpsSaveToOdo() {
+  const addKm = Math.round(gpsTotalDist / 1000);
+  if (addKm < 1) { toast('Kulang pa ang distance'); return; }
+  S.odo = (S.odo || 0) + addKm;
+  document.getElementById('odoInput').value = S.odo;
+  persist(); renderAll();
+  toast(`+${addKm} km added to odometer`);
+  document.getElementById('gpsSaveBtn').style.display = 'none';
+  gpsReset();
+}
+
+function gpsHaversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // meters
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ═══════════════════════════════════════════════
 // EVENT LISTENERS
 // ═══════════════════════════════════════════════
 document.getElementById('odoInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.target.blur();saveOdo();}});
@@ -1320,7 +1643,9 @@ document.getElementById('themeBtn').addEventListener('click',toggleTheme);
 // INIT
 // ═══════════════════════════════════════════════
 loadState();
+loadTrips();
 renderAll();
+renderTripHistory();
 </script>
 
 <div id="installBanner" style="
